@@ -112,6 +112,6 @@ int main()
             t++;
     }
     printReport(WaitQueue, serviceUserCount, totalWaitTime);
-    system("leaks a.out");
+    // system("leaks a.out");
     return 0;
 }
