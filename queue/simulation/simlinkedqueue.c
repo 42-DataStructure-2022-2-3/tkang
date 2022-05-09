@@ -1,22 +1,22 @@
 #include "simdef.h"
 
-void insertCustomer(int arrivalTime, int processTime, LinkedQueue *pQueue)
+void insertCustomer(int arrivalTime, int processTime, LinkedQueue *pQueue) // customer 초기화
 {
     QueueNode   buf;
 
-    buf.customer.arrivalTime = arrivalTime;
-    buf.customer.serviceTime = processTime;
+    buf.customer.arrivalTime = arrivalTime; // 도착시간
+    buf.customer.serviceTime = processTime; // 서비스시간
     insertLQ(pQueue, buf);
 }
 
-void processArrival(int currentTime, LinkedQueue *pArrivalQueue, LinkedQueue *pWaitQueue)
+void processArrival(int currentTime, LinkedQueue *pArrivalQueue, LinkedQueue *pWaitQueue) // 프로세스가 도착했을 때
 {
     QueueNode   *temp;
 
-    if (isLinkedQueueEmpty(pArrivalQueue))
+    if (isLinkedQueueEmpty(pArrivalQueue)) // 만약 arrival queue가 비어있다면 진행할 수 없다.
         return ;
     temp = peekLQ(pArrivalQueue);
-    if (currentTime == temp->customer.arrivalTime)
+    if (currentTime == temp->customer.arrivalTime) // 현재 시간이 arrival time과 같다면 wait queue로 이동한다.
     {
         temp = deleteLQ(pArrivalQueue);
         temp->customer.status = arrival;
@@ -26,20 +26,20 @@ void processArrival(int currentTime, LinkedQueue *pArrivalQueue, LinkedQueue *pW
     }
 }
 
-QueueNode* processServiceNodeStart(int currentTime, LinkedQueue *pWaitQueue)
+QueueNode* processServiceNodeStart(int currentTime, LinkedQueue *pWaitQueue) // 진행
 {
     QueueNode   *temp;
 
-    if (isLinkedQueueEmpty(pWaitQueue))
+    if (isLinkedQueueEmpty(pWaitQueue)) // 만약 wait queue가 비어있다면 진행할 수 없다.
         return (NULL);
     temp = peekLQ(pWaitQueue);
-    if(temp->customer.status == arrival)
+    if(temp->customer.status == arrival) // status, startTime을 start 상태에 맞게 고쳐준다.
     {
         temp->customer.status = start;
         temp->customer.startTime = currentTime;
         return (NULL);
     }
-    else if(temp->customer.startTime + temp->customer.serviceTime == currentTime)
+    else if(temp->customer.startTime + temp->customer.serviceTime == currentTime) // 시작시간 + 서비스시간 이 currentTime과 같다면 종료조건에 부합한다.
         return temp;
     else
         return (NULL);
@@ -49,9 +49,8 @@ QueueNode* processServiceNodeEnd(int currentTime, QueueNode *pServiceNode, int *
 {
     if (!pServiceNode)
         return (NULL);
-    *pServiceUserCount += 1;
-    if (pServiceNode->customer.startTime - pServiceNode->customer.arrivalTime > 0)
-        *pTotalWaitTime += pServiceNode->customer.startTime - pServiceNode->customer.arrivalTime;
+    *pServiceUserCount += 1; // 완료한 process
+    *pTotalWaitTime += pServiceNode->customer.startTime - pServiceNode->customer.arrivalTime; // 대기시간은 도착이후로 시작한 시간이다.
     pServiceNode->customer.endTime = currentTime;
     pServiceNode->customer.status = end;
     return (pServiceNode);
@@ -79,7 +78,7 @@ void printWaitQueueStatus(int currentTime, LinkedQueue *pWaitQueue)
 
 void printReport(LinkedQueue *pWaitQueue, int serviceUserCount, int totalWaitTime)
 {
-    printf("reamining : %d, user count : %d, wait Time : %d\n", pWaitQueue->currentElementCount, serviceUserCount, totalWaitTime);
+    printf("remaining : %d, user count : %d, wait Time : %d\n", pWaitQueue->currentElementCount, serviceUserCount, totalWaitTime);
 }
 
 int main()
@@ -101,7 +100,7 @@ int main()
         processArrival(t, ArrivalQueue, WaitQueue);
         printWaitQueueStatus(t, WaitQueue);
         temp = processServiceNodeStart(t, WaitQueue);
-        if (temp)
+        if (temp) // 만약 반환받았다면, 종료한 것으로 간주한다.
         {
             processServiceNodeEnd(t, temp, &serviceUserCount, &totalWaitTime);
             deleteLQ(WaitQueue);
