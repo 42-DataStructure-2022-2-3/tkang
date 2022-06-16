@@ -22,6 +22,8 @@ LinkedGraph* createLinkedDirectedGraph(int maxVertexCount)
 	temp->graphType = 1;
 	temp->pVertex = calloc(maxVertexCount, sizeof(int));
 	temp->ppAdjEdge = calloc(maxVertexCount, sizeof(LinkedList *));
+	for (int i = 0; i < maxVertexCount; i++)
+		temp->ppAdjEdge[i] = createLinkedList();
 	return (temp);
 }
 
@@ -69,6 +71,7 @@ int addEdgewithWeightLG(LinkedGraph* pGraph, int fromVertexID, int toVertexID, i
 		buf = pGraph->ppAdjEdge[toVertexID];
 		addLLElement(buf, buf->currentElementCount, temp);
 	}
+	pGraph->currentEdgeCount += 1;
 	return (TRUE);
 }
 
@@ -117,6 +120,7 @@ int removeEdgeLG(LinkedGraph* pGraph, int fromVertexID, int toVertexID)
 	removeLLElement(pGraph->ppAdjEdge[fromVertexID], findById(pGraph->ppAdjEdge[fromVertexID], toVertexID));
 	if (pGraph->graphType == 0)
 		removeLLElement(pGraph->ppAdjEdge[toVertexID], findById(pGraph->ppAdjEdge[toVertexID], fromVertexID));
+	pGraph->currentEdgeCount -= 1;
 	return 0;
 }
 
@@ -131,7 +135,7 @@ void displayLinkedGraph(LinkedGraph* pGraph)
 		buf = temp->headerNode.pLink;
 		for(int j = 0; j < temp->currentElementCount; j++)
 		{
-			printf("from : %d to : %d \n", i, buf->data.vertexID);
+			printf("from : %d to : %d  weight : %d\n", i, buf->data.vertexID, buf->data.weight);
 			buf = buf->pLink;
 		}
 	}
